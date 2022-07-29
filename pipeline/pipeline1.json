@@ -60,7 +60,7 @@
 					},
 					"sink": {
 						"type": "AzureSqlSink",
-						"preCopyScript": "delete [dbo].[SqlQuery]",
+						"preCopyScript": "delete [dbo].[SqlQuery]\n\nDeclare @SQLOutput nvarchar(max)\n\nselect @SQLOutput = COALESCE(@SQLOutput + ' ', '' ) + CONVERT(varchar(max),SqlQuery) from Temp.FolderQuery order by SqlQuery",
 						"writeBehavior": "insert",
 						"sqlWriterUseTableLock": false,
 						"disableMetricsCollection": false
