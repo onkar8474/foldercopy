@@ -11,6 +11,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'AzureBlobStorageBlob'"
 		},
+		"AzureSqlDatabase1_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase1'"
+		},
 		"SqlServerDestinationLS_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'SqlServerDestinationLS'"
@@ -22,6 +26,10 @@
 		"adf_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'adf'"
+		},
+		"AzureKeyVaultLS_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://KeyVaultfoldercopy.vault.azure.net/"
 		},
 		"integrationRuntime1_properties_typeProperties_linkedInfo_resourceId": {
 			"type": "string",
@@ -57,6 +65,9 @@
 					"AzureBlobStorageBlob_connectionString": {
 						"value": "[parameters('AzureBlobStorageBlob_connectionString')]"
 					},
+					"AzureSqlDatabase1_connectionString": {
+						"value": "[parameters('AzureSqlDatabase1_connectionString')]"
+					},
 					"adf_connectionString": {
 						"value": "[parameters('adf_connectionString')]"
 					},
@@ -65,6 +76,9 @@
 					},
 					"SqlServerSource_connectionString": {
 						"value": "[parameters('SqlServerSource_connectionString')]"
+					},
+					"AzureKeyVaultLS_properties_typeProperties_baseUrl": {
+						"value": "[parameters('AzureKeyVaultLS_properties_typeProperties_baseUrl')]"
 					},
 					"integrationRuntime1_properties_typeProperties_linkedInfo_resourceId": {
 						"value": "[parameters('integrationRuntime1_properties_typeProperties_linkedInfo_resourceId')]"

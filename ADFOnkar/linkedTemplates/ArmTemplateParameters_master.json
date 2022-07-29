@@ -8,6 +8,9 @@
 		"AzureBlobStorageBlob_connectionString": {
 			"value": ""
 		},
+		"AzureSqlDatabase1_connectionString": {
+			"value": ""
+		},
 		"SqlServerDestinationLS_connectionString": {
 			"value": ""
 		},
@@ -16,6 +19,9 @@
 		},
 		"adf_connectionString": {
 			"value": ""
+		},
+		"AzureKeyVaultLS_properties_typeProperties_baseUrl": {
+			"value": "https://KeyVaultfoldercopy.vault.azure.net/"
 		},
 		"integrationRuntime1_properties_typeProperties_linkedInfo_resourceId": {
 			"value": "/subscriptions/9ebde10a-058f-4892-8970-ba5813eb74e5/resourcegroups/demoresource/providers/Microsoft.DataFactory/factories/datafactorymainpro/integrationruntimes/integrationRuntimemain"
