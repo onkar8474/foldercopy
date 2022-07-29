@@ -93,7 +93,7 @@
 				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "Copy data1",
+						"activity": "Lookup1",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -102,7 +102,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('Copy data1').output",
+						"value": "@activity('Lookup1').output.value",
 						"type": "Expression"
 					},
 					"isSequential": true,
@@ -126,13 +126,49 @@
 							"typeProperties": {
 								"scripts": [
 									{
-										"type": "Query",
-										"text": "use eBS4_INT_QA2"
+										"type": "NonQuery",
+										"text": {
+											"value": "@concat('use eBS4_INT_QA2 ',item().SqlQuery)",
+											"type": "Expression"
+										}
 									}
 								]
 							}
 						}
 					]
+				}
+			},
+			{
+				"name": "Lookup1",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Copy data1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select * from [dbo].[SqlQuery]",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "AzureSqlTable",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
 				}
 			}
 		],
