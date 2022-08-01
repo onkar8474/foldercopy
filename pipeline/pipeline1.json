@@ -18,7 +18,7 @@
 					"storedProcedureName": "[dbo].[FolderCopyProc]",
 					"storedProcedureParameters": {
 						"FolderID": {
-							"value": "33479",
+							"value": "23836",
 							"type": "Int32"
 						},
 						"IsMasterList": {
@@ -110,43 +110,7 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
-						"sqlReaderQuery": "SELECT STRING_AGG(CONVERT(NVARCHAR(MAX), ISNULL(SqlQuery,' ')),' ') AS QUERY FROM [dbo].[SqlQuery]\n",
-						"queryTimeout": "02:00:00",
-						"partitionOption": "None"
-					},
-					"dataset": {
-						"referenceName": "AzureSqlTable",
-						"type": "DatasetReference"
-					},
-					"firstRowOnly": false
-				}
-			},
-			{
-				"name": "Lookup2",
-				"type": "Lookup",
-				"dependsOn": [
-					{
-						"activity": "Lookup1",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"timeout": "7.00:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"source": {
-						"type": "AzureSqlSource",
-						"sqlReaderQuery": {
-							"value": "@concat('select replace ',activity('Lookup1').output.value[0].SQLQUERY,'\\t','  ',' from [dbo].[SqlQuery]')",
-							"type": "Expression"
-						},
+						"sqlReaderQuery": "SELECT STRING_AGG(CONVERT(NVARCHAR(MAX), ISNULL(SqlQuery,' ')),' ') AS SqlQuery FROM Temp.FolderQuery",
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
