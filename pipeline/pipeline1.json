@@ -110,7 +110,7 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
-						"sqlReaderQuery": "SELECT STRING_AGG(SqlQuery,' ') WITHIN GROUP (ORDER BY SqlQuery ASC)  from [dbo].[SqlQuery]",
+						"sqlReaderQuery": "Declare @SQLOutput nvarchar(max)\n\n\t\t\tSET @SQLOutput = '' + (SELECT DISTINCT STUFF((\n                                                    SELECT ' ' + SqlQuery\n                                                    FROM temp.FolderQuery  (NOLOCK)\n                                                    ORDER BY ID\n\t\t\t\t\t              FOR XML PATH('')\t\t\n\t\t\t\t\t\tFOR STRING_AGG('')\n                                                    ), 1, 1, '')\n\t\t                                             ) + ''",
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
