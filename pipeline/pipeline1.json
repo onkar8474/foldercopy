@@ -110,14 +110,51 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
-						"sqlReaderQuery": "Declare @SQLOutput nvarchar(max)\n\n\t\t\tSET @SQLOutput = '' + (SELECT DISTINCT STUFF((\n                                                    SELECT ' ' + SqlQuery\n                                                    FROM temp.FolderQuery  (NOLOCK)\n                                                    ORDER BY ID\n\t\t\t\t\t              FOR XML PATH('')\t\t\n\t\t\t\t\t\tFOR STRING_AGG('')\n                                                    ), 1, 1, '')\n\t\t                                             ) + ''",
+						"sqlReaderQuery": "SELECT STRING_AGG(CONVERT(NVARCHAR(MAX), ISNULL(SqlQuery,' ')),' ') AS QUERY FROM [dbo].[SqlQuery]\n",
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
 					"dataset": {
 						"referenceName": "AzureSqlTable",
 						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "Lookup2",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Lookup1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
 					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "@concat('select replace ',activity('Lookup1').output.value[0].SQLQUERY,'\\t','  ',' from [dbo].[SqlQuery]')",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "AzureSqlTable",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
 				}
 			}
 		],
