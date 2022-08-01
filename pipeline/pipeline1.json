@@ -110,7 +110,7 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
-						"sqlReaderQuery": "SELECT STRING_AGG(CONVERT(NVARCHAR(MAX), ISNULL(SqlQuery,' ')),' ') AS SqlQuery FROM [dbo].[SqlQuery]",
+						"sqlReaderQuery": "SELECT REPLACE(REPLACE(REPLACE([dbo].[SqlQuery],' ','<>'),'><',''),'<>,'')",
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
