@@ -252,7 +252,7 @@
 							"storedProcedureName": "[[dbo].[FolderCopyProc]",
 							"storedProcedureParameters": {
 								"FolderID": {
-									"value": "33479",
+									"value": "25870",
 									"type": "Int32"
 								},
 								"IsMasterList": {
@@ -346,7 +346,7 @@
 						"typeProperties": {
 							"source": {
 								"type": "AzureSqlSource",
-								"sqlReaderQuery": "SELECT STRING_AGG(SqlQuery,' ') WITHIN GROUP (ORDER BY SqlQuery ASC)  from [dbo].[SqlQuery]",
+								"sqlReaderQuery": "SELECT STRING_AGG(CONVERT(NVARCHAR(MAX), ISNULL(SqlQuery,' ')),' ') AS SqlQuery FROM [dbo].[SqlQuery]",
 								"queryTimeout": "02:00:00",
 								"partitionOption": "None"
 							},
@@ -354,7 +354,8 @@
 								"referenceName": "AzureSqlTable",
 								"type": "DatasetReference",
 								"parameters": {}
-							}
+							},
+							"firstRowOnly": false
 						}
 					}
 				],
