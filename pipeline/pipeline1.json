@@ -18,7 +18,7 @@
 					"storedProcedureName": "[dbo].[FolderCopyProc]",
 					"storedProcedureParameters": {
 						"FolderID": {
-							"value": "25870",
+							"value": "25796",
 							"type": "Int32"
 						},
 						"IsMasterList": {
@@ -122,8 +122,8 @@
 				}
 			},
 			{
-				"name": "Lookup1",
-				"type": "Lookup",
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
 				"dependsOn": [
 					{
 						"activity": "Concatenating Queries",
@@ -141,20 +141,20 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"source": {
-						"type": "AzureSqlSource",
-						"sqlReaderQuery": {
-							"value": "@concat('select replace ',activity('Concatenating Queries').output.value[0],'\\t','  ')",
-							"type": "Expression"
-						},
-						"queryTimeout": "02:00:00",
-						"partitionOption": "None"
-					},
-					"dataset": {
-						"referenceName": "AzureSqlTable",
-						"type": "DatasetReference"
-					},
-					"firstRowOnly": false
+					"storedProcedureName": "[UI].[SyncExecuteFolderScript]",
+					"storedProcedureParameters": {
+						"Query": {
+							"value": {
+								"value": "@string(activity('Concatenating Queries').output.value[0])",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "SqlServerDestinationLS",
+					"type": "LinkedServiceReference"
 				}
 			}
 		],
