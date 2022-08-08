@@ -1,0 +1,16 @@
+{
+	"name": "SqlServerClientSide",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"connectionString": "integrated security=False;data source=AZ-VDI-D1-193;initial catalog=ADFDB;user id=sa",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJlNWQ1MzU1NS05Zjg2LTRjYTYtOTNkMy00MGU5MGNjZjA4OGEiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "integrationRuntime1",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}
