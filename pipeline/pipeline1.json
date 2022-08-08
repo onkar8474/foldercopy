@@ -156,6 +156,41 @@
 					"referenceName": "SqlServerDestinationLS",
 					"type": "LinkedServiceReference"
 				}
+			},
+			{
+				"name": "Script1",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "Concatenating Queries",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "SqlServerDestinationLS",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "NonQuery",
+							"text": {
+								"value": "@string(activity('Concatenating Queries').output.value[0])",
+								"type": "Expression"
+							}
+						}
+					]
+				}
 			}
 		],
 		"variables": {
