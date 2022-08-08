@@ -122,11 +122,11 @@
 				}
 			},
 			{
-				"name": "Stored procedure1",
-				"type": "SqlServerStoredProcedure",
+				"name": "Copy data To ClientSide",
+				"type": "Copy",
 				"dependsOn": [
 					{
-						"activity": "Concatenating Queries",
+						"activity": "Stored procedure Foldercopy",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -141,56 +141,46 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"storedProcedureName": "[UI].[SyncExecuteFolderScript]",
-					"storedProcedureParameters": {
-						"Query": {
-							"value": {
-								"value": "@string(activity('Concatenating Queries').output.value[0])",
-								"type": "Expression"
-							},
-							"type": "String"
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "SELECT ID, SqlQuery FROM [Temp].[FolderQuery] order by ID",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "SqlServerSink",
+						"preCopyScript": "delete dbo.SqlQuery",
+						"writeBehavior": "upsert",
+						"upsertSettings": {
+							"useTempDB": true,
+							"keys": [
+								"ID"
+							]
+						},
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
 						}
 					}
 				},
-				"linkedServiceName": {
-					"referenceName": "SqlServerDestinationLS",
-					"type": "LinkedServiceReference"
-				}
-			},
-			{
-				"name": "Script1",
-				"type": "Script",
-				"dependsOn": [
+				"inputs": [
 					{
-						"activity": "Concatenating Queries",
-						"dependencyConditions": [
-							"Succeeded"
-						]
+						"referenceName": "SqlServerTableSource",
+						"type": "DatasetReference"
 					}
 				],
-				"policy": {
-					"timeout": "7.00:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"linkedServiceName": {
-					"referenceName": "SqlServerDestinationLS",
-					"type": "LinkedServiceReference"
-				},
-				"typeProperties": {
-					"scripts": [
-						{
-							"type": "NonQuery",
-							"text": {
-								"value": "@string(activity('Concatenating Queries').output.value[0])",
-								"type": "Expression"
-							}
-						}
-					]
-				}
+				"outputs": [
+					{
+						"referenceName": "SqlServerTableForClientSide",
+						"type": "DatasetReference"
+					}
+				]
 			}
 		],
 		"variables": {
