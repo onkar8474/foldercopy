@@ -27,6 +27,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'adf'"
 		},
+		"SqlServerClientSide_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'SqlServerClientSide'"
+		},
 		"AzureKeyVaultLS_properties_typeProperties_baseUrl": {
 			"type": "string",
 			"defaultValue": "https://KeyVaultfoldercopy.vault.azure.net/"
@@ -169,11 +173,11 @@
 						}
 					},
 					{
-						"name": "Stored procedure1",
-						"type": "SqlServerStoredProcedure",
+						"name": "Copy data To ClientSide",
+						"type": "Copy",
 						"dependsOn": [
 							{
-								"activity": "Concatenating Queries",
+								"activity": "Stored procedure Foldercopy",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -188,56 +192,48 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"storedProcedureName": "[[UI].[SyncExecuteFolderScript]",
-							"storedProcedureParameters": {
-								"Query": {
-									"value": {
-										"value": "@string(activity('Concatenating Queries').output.value[0])",
-										"type": "Expression"
-									},
-									"type": "String"
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": "SELECT ID, SqlQuery FROM [Temp].[FolderQuery] order by ID",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "SqlServerSink",
+								"preCopyScript": "delete dbo.SqlQuery",
+								"writeBehavior": "upsert",
+								"upsertSettings": {
+									"useTempDB": true,
+									"keys": [
+										"ID"
+									]
+								},
+								"sqlWriterUseTableLock": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
 								}
 							}
 						},
-						"linkedServiceName": {
-							"referenceName": "SqlServerDestinationLS",
-							"type": "LinkedServiceReference"
-						}
-					},
-					{
-						"name": "Script1",
-						"type": "Script",
-						"dependsOn": [
+						"inputs": [
 							{
-								"activity": "Concatenating Queries",
-								"dependencyConditions": [
-									"Succeeded"
-								]
+								"referenceName": "SqlServerTableSource",
+								"type": "DatasetReference",
+								"parameters": {}
 							}
 						],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"linkedServiceName": {
-							"referenceName": "SqlServerDestinationLS",
-							"type": "LinkedServiceReference"
-						},
-						"typeProperties": {
-							"scripts": [
-								{
-									"type": "NonQuery",
-									"text": {
-										"value": "@string(activity('Concatenating Queries').output.value[0])",
-										"type": "Expression"
-									}
-								}
-							]
-						}
+						"outputs": [
+							{
+								"referenceName": "SqlServerTableForClientSide",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
 					}
 				],
 				"policy": {
@@ -259,7 +255,7 @@
 				"[concat(variables('factoryId'), '/linkedServices/SqlServerSource')]",
 				"[concat(variables('factoryId'), '/datasets/SqlServerTableSource')]",
 				"[concat(variables('factoryId'), '/datasets/AzureSqlTable')]",
-				"[concat(variables('factoryId'), '/linkedServices/SqlServerDestinationLS')]"
+				"[concat(variables('factoryId'), '/datasets/SqlServerTableForClientSide')]"
 			]
 		},
 		{
@@ -451,6 +447,46 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SqlServerClientSide')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('SqlServerClientSide_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "integrationRuntime1",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/integrationRuntime1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SqlServerTableForClientSide')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "SqlServerClientSide",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "SqlQuery"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/SqlServerClientSide')]"
+			]
 		}
 	]
 }

@@ -20,6 +20,9 @@
 		"adf_connectionString": {
 			"value": ""
 		},
+		"SqlServerClientSide_connectionString": {
+			"value": ""
+		},
 		"AzureKeyVaultLS_properties_typeProperties_baseUrl": {
 			"value": "https://KeyVaultfoldercopy.vault.azure.net/"
 		},
