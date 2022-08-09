@@ -349,161 +349,6 @@
 						}
 					},
 					{
-						"name": "Copy data to azure Db",
-						"type": "Copy",
-						"dependsOn": [
-							{
-								"activity": "Stored procedure Foldercopy",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "SqlServerSource",
-								"sqlReaderQuery": "SELECT ID, SqlQuery FROM [Temp].[FolderQuery] order by ID",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"sink": {
-								"type": "AzureSqlSink",
-								"preCopyScript": "delete [dbo].[SqlQuery]\n\n",
-								"writeBehavior": "insert",
-								"sqlWriterUseTableLock": false,
-								"disableMetricsCollection": false
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "SqlServerTableSource",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "AzureSqlTable",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					},
-					{
-						"name": "Concatenating Queries",
-						"type": "Lookup",
-						"dependsOn": [
-							{
-								"activity": "Copy data to azure Db",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": "SELECT STRING_AGG(CONVERT(NVARCHAR(MAX), ISNULL(SqlQuery,' ')),' ') within group(order by ID asc)  AS SqlQuery FROM [dbo].[SqlQuery]",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "AzureSqlTable",
-								"type": "DatasetReference",
-								"parameters": {}
-							},
-							"firstRowOnly": false
-						}
-					},
-					{
-						"name": "Copy data To ClientSide SSMS",
-						"type": "Copy",
-						"dependsOn": [
-							{
-								"activity": "Stored procedure Foldercopy",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "SqlServerSource",
-								"sqlReaderQuery": "SELECT ID, SqlQuery FROM [Temp].[FolderQuery] order by ID",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"sink": {
-								"type": "SqlServerSink",
-								"preCopyScript": "delete dbo.SqlQuery",
-								"writeBehavior": "upsert",
-								"upsertSettings": {
-									"useTempDB": true,
-									"keys": [
-										"ID"
-									]
-								},
-								"sqlWriterUseTableLock": false
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "SqlServerTableSource",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "SqlServerTableForClientSide",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					},
-					{
 						"name": "Copy data To Client Azure",
 						"type": "Copy",
 						"dependsOn": [
@@ -531,7 +376,7 @@
 							},
 							"sink": {
 								"type": "AzureSqlSink",
-								"preCopyScript": "delete dbo.SqlQuery",
+								"preCopyScript": "delete dbo.SqlQuery\n\n",
 								"writeBehavior": "insert",
 								"sqlWriterUseTableLock": false,
 								"disableMetricsCollection": false
@@ -562,7 +407,7 @@
 						]
 					},
 					{
-						"name": "Concatenating QueriesInClientAzure",
+						"name": "Lookup1",
 						"type": "Lookup",
 						"dependsOn": [
 							{
@@ -583,121 +428,7 @@
 						"typeProperties": {
 							"source": {
 								"type": "AzureSqlSource",
-								"sqlReaderQuery": "SELECT STRING_AGG(CONVERT(NVARCHAR(MAX), ISNULL(SqlQuery,' ')),' ') within group(order by ID asc)  AS SqlQuery FROM [dbo].[SqlQuery]",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "AzureSqlTableClient",
-								"type": "DatasetReference",
-								"parameters": {}
-							},
-							"firstRowOnly": false
-						}
-					},
-					{
-						"name": "ExecuteQuery",
-						"type": "Script",
-						"dependsOn": [
-							{
-								"activity": "Concatenating QueriesInClientAzure",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"linkedServiceName": {
-							"referenceName": "AzureSqlDatabaseClient",
-							"type": "LinkedServiceReference"
-						},
-						"typeProperties": {
-							"scripts": [
-								{
-									"type": "NonQuery",
-									"text": {
-										"value": "@string(activity('Concatenating QueriesInClientAzure').output.value[0])",
-										"type": "Expression"
-									}
-								}
-							]
-						}
-					},
-					{
-						"name": "Execute Query On Client DB",
-						"type": "SqlServerStoredProcedure",
-						"dependsOn": [
-							{
-								"activity": "Concatenating QueriesInClientAzure",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"storedProcedureName": "[[dbo].[SyncExecuteFolderScript]",
-							"storedProcedureParameters": {
-								"Query": {
-									"value": {
-										"value": "@string(activity('Concatenating QueriesInClientAzure').output.value[0])",
-										"type": "Expression"
-									},
-									"type": "String"
-								}
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "AzureSqlDatabaseClient",
-							"type": "LinkedServiceReference"
-						}
-					},
-					{
-						"name": "Lookup To ExecQuery",
-						"type": "Lookup",
-						"dependsOn": [
-							{
-								"activity": "Concatenating QueriesInClientAzure",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderStoredProcedureName": "[[dbo].[SyncExecuteFolderScript]",
-								"storedProcedureParameters": {
-									"Query": {
-										"type": "String",
-										"value": {
-											"value": "@string(activity('Concatenating QueriesInClientAzure').output.value[0])",
-											"type": "Expression"
-										}
-									}
-								},
+								"sqlReaderStoredProcedureName": "[[dbo].[ExecSql]",
 								"queryTimeout": "02:00:00",
 								"partitionOption": "None"
 							},
@@ -728,10 +459,7 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/SqlServerSource')]",
 				"[concat(variables('factoryId'), '/datasets/SqlServerTableSource')]",
-				"[concat(variables('factoryId'), '/datasets/AzureSqlTable')]",
-				"[concat(variables('factoryId'), '/datasets/SqlServerTableForClientSide')]",
-				"[concat(variables('factoryId'), '/datasets/AzureSqlTableClient')]",
-				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabaseClient')]"
+				"[concat(variables('factoryId'), '/datasets/AzureSqlTableClient')]"
 			]
 		}
 	]
