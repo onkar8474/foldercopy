@@ -210,7 +210,7 @@
 					},
 					"sink": {
 						"type": "AzureSqlSink",
-						"preCopyScript": "delete dbo.SqlQuery",
+						"preCopyScript": "delete dbo.SqlQuery\n\nQUOTED_IDENTIFIER OFF",
 						"writeBehavior": "insert",
 						"sqlWriterUseTableLock": false,
 						"disableMetricsCollection": false
