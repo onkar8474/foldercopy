@@ -324,7 +324,7 @@
 								"partitionOption": "None"
 							},
 							"dataset": {
-								"referenceName": "AzureSqlTable",
+								"referenceName": "AzureSqlTableClient",
 								"type": "DatasetReference",
 								"parameters": {}
 							},
@@ -476,7 +476,7 @@
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "AzureSqlDatabase1",
+					"referenceName": "AzureSqlDatabaseClient",
 					"type": "LinkedServiceReference"
 				},
 				"annotations": [],
@@ -488,7 +488,7 @@
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabaseClient')]"
 			]
 		},
 		{
