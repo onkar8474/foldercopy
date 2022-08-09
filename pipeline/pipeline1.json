@@ -411,7 +411,7 @@
 					"scripts": [
 						{
 							"type": "NonQuery",
-							"text": "SET QUOTED_IDENTIFIER OFF\nSET ANSI_NULLS ON"
+							"text": "SET QUOTED_IDENTIFIER ON\n"
 						}
 					]
 				}
