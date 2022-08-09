@@ -265,7 +265,7 @@
 						"partitionOption": "None"
 					},
 					"dataset": {
-						"referenceName": "AzureSqlTable",
+						"referenceName": "AzureSqlTableClient",
 						"type": "DatasetReference"
 					},
 					"firstRowOnly": false
