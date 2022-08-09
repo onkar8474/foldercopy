@@ -31,6 +31,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'SqlServerClientSide'"
 		},
+		"AzureSqlDatabaseClient_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabaseClient'"
+		},
 		"AzureKeyVaultLS_properties_typeProperties_baseUrl": {
 			"type": "string",
 			"defaultValue": "https://KeyVaultfoldercopy.vault.azure.net/"
@@ -74,6 +78,9 @@
 					},
 					"adf_connectionString": {
 						"value": "[parameters('adf_connectionString')]"
+					},
+					"AzureSqlDatabaseClient_connectionString": {
+						"value": "[parameters('AzureSqlDatabaseClient_connectionString')]"
 					},
 					"SqlServerDestinationLS_connectionString": {
 						"value": "[parameters('SqlServerDestinationLS_connectionString')]"

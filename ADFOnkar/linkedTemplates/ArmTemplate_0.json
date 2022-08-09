@@ -19,6 +19,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'adf'"
 		},
+		"AzureSqlDatabaseClient_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabaseClient'"
+		},
 		"SqlServerDestinationLS_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'SqlServerDestinationLS'"
@@ -107,6 +111,19 @@
 						"resourceId": "[parameters('integrationRuntime1_properties_typeProperties_linkedInfo_resourceId')]",
 						"authorizationType": "Rbac"
 					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabaseClient')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureSqlDatabaseClient_connectionString')]"
 				}
 			},
 			"dependsOn": []
@@ -215,6 +232,27 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/integrationRuntimes/integrationRuntime1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlTableClient')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabaseClient",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "SqlQuery"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabaseClient')]"
 			]
 		},
 		{
@@ -403,7 +441,7 @@
 						}
 					},
 					{
-						"name": "Copy data To ClientSide",
+						"name": "Copy data To ClientSide SSMS",
 						"type": "Copy",
 						"dependsOn": [
 							{
@@ -464,6 +502,212 @@
 								"parameters": {}
 							}
 						]
+					},
+					{
+						"name": "Copy data To Client Azure",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Stored procedure Foldercopy",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": "SELECT ID, SqlQuery FROM [Temp].[FolderQuery] order by ID",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"preCopyScript": "delete dbo.SqlQuery",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "SqlServerTableSource",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "AzureSqlTableClient",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Concatenating QueriesInClientAzure",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Copy data To Client Azure",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "SELECT STRING_AGG(CONVERT(NVARCHAR(MAX), ISNULL(SqlQuery,' ')),' ') within group(order by ID asc)  AS SqlQuery FROM [dbo].[SqlQuery]",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "AzureSqlTable",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "ExecuteQuery",
+						"type": "Script",
+						"dependsOn": [
+							{
+								"activity": "Concatenating QueriesInClientAzure",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"linkedServiceName": {
+							"referenceName": "AzureSqlDatabaseClient",
+							"type": "LinkedServiceReference"
+						},
+						"typeProperties": {
+							"scripts": [
+								{
+									"type": "NonQuery",
+									"text": {
+										"value": "@string(activity('Concatenating QueriesInClientAzure').output.value[0])",
+										"type": "Expression"
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Execute Query On Client DB",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Concatenating QueriesInClientAzure",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[SyncExecuteFolderScript]",
+							"storedProcedureParameters": {
+								"Query": {
+									"value": {
+										"value": "@string(activity('Concatenating QueriesInClientAzure').output.value[0])",
+										"type": "Expression"
+									},
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureSqlDatabaseClient",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Lookup To ExecQuery",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Concatenating QueriesInClientAzure",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderStoredProcedureName": "[[dbo].[SyncExecuteFolderScript]",
+								"storedProcedureParameters": {
+									"Query": {
+										"type": "String",
+										"value": {
+											"value": "@string(activity('Concatenating QueriesInClientAzure').output.value[0])",
+											"type": "Expression"
+										}
+									}
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "AzureSqlTableClient",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
 					}
 				],
 				"policy": {
@@ -485,7 +729,9 @@
 				"[concat(variables('factoryId'), '/linkedServices/SqlServerSource')]",
 				"[concat(variables('factoryId'), '/datasets/SqlServerTableSource')]",
 				"[concat(variables('factoryId'), '/datasets/AzureSqlTable')]",
-				"[concat(variables('factoryId'), '/datasets/SqlServerTableForClientSide')]"
+				"[concat(variables('factoryId'), '/datasets/SqlServerTableForClientSide')]",
+				"[concat(variables('factoryId'), '/datasets/AzureSqlTableClient')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabaseClient')]"
 			]
 		}
 	]
