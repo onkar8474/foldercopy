@@ -369,7 +369,7 @@
 							"Query": {
 								"type": "String",
 								"value": {
-									"value": "@string(activity('Concatenating QueriesInClientAzure').output.value[0])",
+									"value": "@string(activity('Concatenating QueriesInClientAzure').output.value[0].SqlQuery)",
 									"type": "Expression"
 								}
 							}
