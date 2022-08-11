@@ -5,8 +5,8 @@
 		"annotations": [],
 		"type": "SqlServer",
 		"typeProperties": {
-			"connectionString": "integrated security=False;data source=AZ-VDI-D1-267;initial catalog=ADFDB;user id=sa",
-			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI3NmFiODk2Ny0zY2IzLTQwY2ItYWIxOC03ZDMyZmQ5NDk5M2UiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+			"connectionString": "integrated security=False;data source=AZ-VDI-D1-214;initial catalog=ADFDB;user id=sa",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJhMTYxN2I3Yy02OWMzLTRmM2MtOTQ1ZS0yODc3NWQ0NGZmNmYiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
 		},
 		"connectVia": {
 			"referenceName": "integrationRuntime1",
