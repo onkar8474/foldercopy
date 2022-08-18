@@ -6,7 +6,7 @@
 		"type": "SqlServer",
 		"typeProperties": {
 			"connectionString": "integrated security=False;data source=AZ-VDI-D1-214;initial catalog=eBS4_INT_QA2;user id=sa",
-			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI3NDc5ZmQyYS02MmIzLTQ3YjAtYjkyOC0zYTYyZmJiNzMyNzkiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJkYWQxMmJhZC0zMjQ5LTRmYjAtYWExNS1lOGUzNWRhOWQ4MTYiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
 		},
 		"connectVia": {
 			"referenceName": "integrationRuntime1",
